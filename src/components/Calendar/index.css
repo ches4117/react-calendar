@@ -13,7 +13,9 @@
   border-bottom: 19px;
 }
 
-.calendar-bar > .current-month {
+.calendar-bar > .current-month, 
+.calendar-bar > .current-year
+{
   font-size: 20px;  
   font-weight: bold;  
   color: #000;
@@ -23,6 +25,11 @@
 
 .current-month > span:first-child {
   margin-right: 8px;
+}
+
+.current-month:hover,
+.current-year:hover {
+  background-color: #ddd;
 }
 
 .calendar-bar > [class$="soft-btn"] {
@@ -46,21 +53,19 @@
   padding-bottom: 12px;
 }
 
-.empty-days {
-  color: #a5a5a5 !important;
-  user-select: none;
-}
-
 .current-day {
-  background-color: #000;  
-  color: #fff;
-  border-radius: 50%;  
-  font-weight: 700;  
-  transition: 0.5s;  
-  cursor: pointer;
+  color: #db3d44 !important;
 }
 
-.days-name, [class$="-day"] {  
+.selected-day {
+  background-color: #db3d44;  
+  color: #fff !important;
+  border-radius: 50%;  
+  transition: 0.5s;  
+}
+
+
+.days-name {  
   width: 40px;  
   height: 40px;  
   color: #000;  
@@ -68,11 +73,32 @@
   line-height: 40px;  
   font-weight: 500;  
   font-size: 1rem;
+  cursor: pointer;
 }
 
-.days-name {  
+.empty-days {
+  color: #eee !important;
+  user-select: none;
+  cursor: auto;
+}
+
+
+.calendar-months {
+  display: flex;  
+  flex-wrap: wrap;  
+  padding-inline:18px;
+  padding: 0 36px;
+}
+
+.months-name {  
+  width: 60px;  
+  height: 80px;  
   color: #000;  
-  font-weight: 700;
+  text-align: center;
+  line-height: 80px;  
+  font-weight: 500;  
+  font-size: 1.2rem;
+  cursor: pointer;
 }
 
 .calendar-bar > [class$="soft-btn"]:hover,.month-day:hover,

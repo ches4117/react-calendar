@@ -1,13 +1,23 @@
 import React, { useState } from "react";
 import "./index.css";
 import moment from "moment";
-import { monthShort, showDay, showMonth, showYear } from "./utils";
+import {
+  monthShort,
+  showDay,
+  showMonth,
+  showYearRange,
+  allMonthShort,
+  showMapping,
+} from "./utils";
 
 function Calendar(props) {
-  const { dateObject, handleMonthChange } = props;
+  const { dateObject, handleRangeChange, todayObject } = props;
   const [showState, setShowState] = useState(showDay);
-  const nowMonth = dateObject.format("MMM");
-  const nowYear = dateObject.year();
+  const [selectedDate, setSelectDate] = useState(undefined);
+  const [nowYear, nowMonth] = dateObject.format("YYYY MMM").split(" ");
+  const [todayYear, todayMonth, today] = todayObject
+    .format("YYYY MMM DD")
+    .split(" ");
   const totalDays = 7 * 6; // total days of a page of calendar
   const daysInMonthArray = [...Array(dateObject.daysInMonth()).keys()].map(
     (i) => i + 1
@@ -28,65 +38,129 @@ function Calendar(props) {
       .reverse();
   })();
 
+  const handleMonthClick = () => {
+    setShowState(showMonth);
+  };
+
+  const handleYearClick = () => {
+    setShowState(showYearRange);
+  };
+
+  const handleYearRangeClick = () => {
+    setShowState(showDay);
+  };
+
+  const handleDateClick = (value) => {
+    setSelectDate(value);
+  };
+
   return (
     <div className="calendar-card">
       <div className="calendar-bar">
         <button
           className="soft-btn"
-          onClick={() => handleMonthChange(dateObject, "-")}
+          onClick={() =>
+            handleRangeChange(showMapping[showState], dateObject, "-")
+          }
         >{`<`}</button>
         {showState === showDay && (
-          <div className="current-month">
+          <div className="current-month" onClick={() => handleMonthClick()}>
             <span>{nowMonth}</span>
             <span>{nowYear}</span>
           </div>
         )}
+        {showState === showMonth && (
+          <div className="current-year" onClick={() => handleYearClick()}>
+            <span>{nowYear}</span>
+          </div>
+        )}
+        {showState === showYearRange && (
+          <div className="current-year" onClick={() => handleYearRangeClick()}>
+            <span>
+              {Math.floor(Number(nowYear) / 10) * 10}-
+              {Math.floor(Number(nowYear) / 10 + 1) * 10}
+            </span>
+          </div>
+        )}
         <button
           className="soft-btn"
-          onClick={() => handleMonthChange(dateObject, "+")}
+          onClick={() =>
+            handleRangeChange(showMapping[showState], dateObject, "+")
+          }
         >{`>`}</button>
       </div>
-
-      {showState === showDay && (
-        <div className="calendar">
-          <div className="weekdays-name">
-            {monthShort.map((name) => {
+      <div className="calendar">
+        {showState === showDay && (
+          <>
+            <div className="weekdays-name">
+              {monthShort.map((name) => {
+                return (
+                  <div key={name} className="days-name">
+                    {name}
+                  </div>
+                );
+              })}
+            </div>
+            <div className="calendar-days">
+              {firstDayOfMonth.map((day) => {
+                return (
+                  <div key={`empty-${day}`} className="days-name empty-days">
+                    {day}
+                  </div>
+                );
+              })}
+              {daysInMonthArray.map((day) => {
+                return (
+                  <div
+                    key={`day-${day}`}
+                    className={`days-name ${
+                      day === Number(today) &&
+                      todayYear === nowYear &&
+                      todayMonth === nowMonth
+                        ? "current-day"
+                        : ""
+                    } ${selectedDate === day ? "selected-day" : ""}`}
+                    onClick={() => handleDateClick(day)}
+                  >
+                    {day}
+                  </div>
+                );
+              })}
+              {[
+                ...Array(
+                  totalDays - firstDayOfMonth.length - daysInMonthArray.length
+                ).keys(),
+              ].map((day) => {
+                return (
+                  <div
+                    key={`empty-${day + 1}`}
+                    className="days-name empty-days"
+                  >
+                    {day + 1}
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+        {showState === showMonth && (
+          <div className="calendar-months">
+            {allMonthShort.map((month) => {
               return (
-                <div key={name} className="days-name">
-                  {name}
+                <div
+                  key={`month-${month}`}
+                  className={`months-name ${
+                    selectedDate === month ? "selected-day" : ""
+                  }`}
+                  onClick={() => handleDateClick(month)}
+                >
+                  {month}
                 </div>
               );
             })}
           </div>
-          <div className="calendar-days">
-            {firstDayOfMonth.map((day) => {
-              return (
-                <div key={`empty-${day}`} className="days-name empty-days">
-                  {day}
-                </div>
-              );
-            })}
-            {daysInMonthArray.map((item) => {
-              return (
-                <div key={`day-${item}`} className="days-name">
-                  {item}
-                </div>
-              );
-            })}
-            {[
-              ...Array(
-                totalDays - firstDayOfMonth.length - daysInMonthArray.length
-              ).keys(),
-            ].map((day) => {
-              return (
-                <div key={`empty-${day + 1}`} className="days-name empty-days">
-                  {day + 1}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
