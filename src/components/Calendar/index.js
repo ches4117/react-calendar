@@ -15,6 +15,10 @@ function Calendar(props) {
   const [showState, setShowState] = useState(showDay);
   const [selectedDate, setSelectDate] = useState(undefined);
   const [nowYear, nowMonth] = dateObject.format("YYYY MMM").split(" ");
+  const [yearRangeStart, yearRangeEnd] = [
+    Math.floor(Number(nowYear) / 10) * 10,
+    Math.floor(Number(nowYear) / 10 + 1) * 10,
+  ];
   const [todayYear, todayMonth, today] = todayObject
     .format("YYYY MMM DD")
     .split(" ");
@@ -77,8 +81,7 @@ function Calendar(props) {
         {showState === showYearRange && (
           <div className="current-year" onClick={() => handleYearRangeClick()}>
             <span>
-              {Math.floor(Number(nowYear) / 10) * 10}-
-              {Math.floor(Number(nowYear) / 10 + 1) * 10}
+              {yearRangeStart}-{yearRangeEnd}
             </span>
           </div>
         )}
@@ -158,6 +161,33 @@ function Calendar(props) {
                 </div>
               );
             })}
+          </div>
+        )}
+        {showState === showYearRange && (
+          <div className="calendar-months">
+            {[...Array(yearRangeEnd - yearRangeStart + 2).keys()].map(
+              (year, index) => (
+                <div
+                  key={`year-${year}`}
+                  className={`months-name ${
+                    selectedDate === year ? "selected-day" : ""
+                  } ${
+                    index === 0 || index === yearRangeEnd - yearRangeStart + 1
+                      ? "empty-days"
+                      : ""
+                  }
+                
+                `}
+                  onClick={() => {
+                    if (index > 0 && index <= yearRangeEnd - yearRangeStart) {
+                      handleDateClick(year);
+                    }
+                  }}
+                >
+                  {yearRangeStart - 1 + year}
+                </div>
+              )
+            )}
           </div>
         )}
       </div>

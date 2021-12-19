@@ -49,6 +49,10 @@
   padding-inline:18px;
 }
 
+.weekdays-name {
+  cursor: auto;
+}
+
 .calendar-days {  
   padding-bottom: 12px;
 }
@@ -76,13 +80,6 @@
   cursor: pointer;
 }
 
-.empty-days {
-  color: #eee !important;
-  user-select: none;
-  cursor: auto;
-}
-
-
 .calendar-months {
   display: flex;  
   flex-wrap: wrap;  
@@ -107,4 +104,10 @@
   background-color: #ddd;  
   color: #000;
   border-radius: 50%;
+}
+
+
+.empty-days {
+  color: #eee;
+  cursor: auto;
 }
