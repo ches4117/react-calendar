@@ -21,12 +21,16 @@ function App() {
       }
     }
   };
+  const handleDateObjectChange = (newObjet) => {
+    setDateObject(newObjet);
+  };
 
   return (
     <Calendar
       dateObject={dateObject}
       todayObject={todayObject}
       handleRangeChange={handleRangeChange}
+      handleDateObjectChange={handleDateObjectChange}
     />
   );
 }

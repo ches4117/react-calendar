@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./index.css";
 import moment from "moment";
 import {
@@ -8,21 +8,32 @@ import {
   showYearRange,
   allMonthShort,
   showMapping,
+  clickMapping,
+  clickChangeMapping,
+  totalDays,
 } from "./utils";
 
 function Calendar(props) {
-  const { dateObject, handleRangeChange, todayObject } = props;
+  const {
+    dateObject,
+    todayObject,
+    handleRangeChange,
+    handleDateObjectChange,
+  } = props;
   const [showState, setShowState] = useState(showDay);
-  const [selectedDate, setSelectDate] = useState(undefined);
-  const [nowYear, nowMonth] = dateObject.format("YYYY MMM").split(" ");
-  const [yearRangeStart, yearRangeEnd] = [
-    Math.floor(Number(nowYear) / 10) * 10,
-    Math.floor(Number(nowYear) / 10 + 1) * 10,
-  ];
+  const [selectedDate, setSelectDate] = useState({
+    day: undefined,
+    month: dateObject.format("MMM"),
+    year: dateObject.format("YYYY"),
+  });
+  const [nowCalendarBar, setNowCalendarBar] = useState({
+    month: undefined,
+    year: undefined,
+    yearRange: undefined,
+  });
   const [todayYear, todayMonth, today] = todayObject
     .format("YYYY MMM DD")
     .split(" ");
-  const totalDays = 7 * 6; // total days of a page of calendar
   const daysInMonthArray = [...Array(dateObject.daysInMonth()).keys()].map(
     (i) => i + 1
   );
@@ -42,6 +53,17 @@ function Calendar(props) {
       .reverse();
   })();
 
+  useEffect(() => {
+    setNowCalendarBar({
+      month: dateObject.format("MMM"),
+      year: dateObject.format("YYYY"),
+      yearRange: [
+        Math.floor(Number(dateObject.format("YYYY")) / 10) * 10,
+        Math.floor(Number(dateObject.format("YYYY")) / 10 + 1) * 10,
+      ],
+    });
+  }, [dateObject]);
+
   const handleMonthClick = () => {
     setShowState(showMonth);
   };
@@ -54,8 +76,27 @@ function Calendar(props) {
     setShowState(showDay);
   };
 
-  const handleDateClick = (value) => {
-    setSelectDate(value);
+  const handleDateClick = (value, type) => {
+    if (showState === "showMonth") {
+      setSelectDate({
+        ...selectedDate,
+        year: nowCalendarBar.year,
+        month: value,
+      });
+    } else if (showState === "showDay") {
+      setSelectDate({
+        year: nowCalendarBar.year,
+        month: nowCalendarBar.month,
+        day: value,
+      });
+    } else {
+      setSelectDate({ ...selectedDate, year: value });
+    }
+    setNowCalendarBar({ ...nowCalendarBar, [type]: value });
+    handleDateObjectChange(dateObject.set(type, value));
+    if (clickChangeMapping[showState]) {
+      setShowState(clickChangeMapping[showState]);
+    }
   };
 
   return (
@@ -69,19 +110,19 @@ function Calendar(props) {
         >{`<`}</button>
         {showState === showDay && (
           <div className="current-month" onClick={() => handleMonthClick()}>
-            <span>{nowMonth}</span>
-            <span>{nowYear}</span>
+            <span>{nowCalendarBar.month}</span>
+            <span>{nowCalendarBar.year}</span>
           </div>
         )}
         {showState === showMonth && (
           <div className="current-year" onClick={() => handleYearClick()}>
-            <span>{nowYear}</span>
+            <span>{nowCalendarBar.year}</span>
           </div>
         )}
         {showState === showYearRange && (
           <div className="current-year" onClick={() => handleYearRangeClick()}>
             <span>
-              {yearRangeStart}-{yearRangeEnd}
+              {nowCalendarBar.yearRange[0]}-{nowCalendarBar.yearRange[1]}
             </span>
           </div>
         )}
@@ -118,12 +159,18 @@ function Calendar(props) {
                     key={`day-${day}`}
                     className={`days-name ${
                       day === Number(today) &&
-                      todayYear === nowYear &&
-                      todayMonth === nowMonth
+                      todayMonth === nowCalendarBar.month &&
+                      todayYear === nowCalendarBar.year
                         ? "current-day"
                         : ""
-                    } ${selectedDate === day ? "selected-day" : ""}`}
-                    onClick={() => handleDateClick(day)}
+                    } ${
+                      selectedDate.day === day &&
+                      selectedDate.month === nowCalendarBar.month &&
+                      selectedDate.year === nowCalendarBar.year
+                        ? "selected-day"
+                        : ""
+                    }`}
+                    onClick={() => handleDateClick(day, "day")}
                   >
                     {day}
                   </div>
@@ -153,9 +200,9 @@ function Calendar(props) {
                 <div
                   key={`month-${month}`}
                   className={`months-name ${
-                    selectedDate === month ? "selected-day" : ""
+                    selectedDate.month === month ? "selected-day" : ""
                   }`}
-                  onClick={() => handleDateClick(month)}
+                  onClick={() => handleDateClick(month, "month")}
                 >
                   {month}
                 </div>
@@ -165,32 +212,48 @@ function Calendar(props) {
         )}
         {showState === showYearRange && (
           <div className="calendar-months">
-            {[...Array(yearRangeEnd - yearRangeStart + 2).keys()].map(
-              (year, index) => (
-                <div
-                  key={`year-${year}`}
-                  className={`months-name ${
-                    selectedDate === year ? "selected-day" : ""
-                  } ${
-                    index === 0 || index === yearRangeEnd - yearRangeStart + 1
-                      ? "empty-days"
-                      : ""
-                  }
+            {[
+              ...Array(
+                nowCalendarBar.yearRange[1] - nowCalendarBar.yearRange[0] + 2
+              ).keys(),
+            ].map((year, index) => (
+              <div
+                key={`year-${year}`}
+                className={`months-name ${
+                  selectedDate.year === nowCalendarBar.yearRange[0] - 1 + year
+                    ? "selected-day"
+                    : ""
+                } ${
+                  index === 0 ||
+                  index ===
+                    nowCalendarBar.yearRange[1] -
+                      nowCalendarBar.yearRange[0] +
+                      1
+                    ? "empty-days"
+                    : ""
+                }
                 
                 `}
-                  onClick={() => {
-                    if (index > 0 && index <= yearRangeEnd - yearRangeStart) {
-                      handleDateClick(year);
-                    }
-                  }}
-                >
-                  {yearRangeStart - 1 + year}
-                </div>
-              )
-            )}
+                onClick={() => {
+                  if (
+                    index > 0 &&
+                    index <=
+                      nowCalendarBar.yearRange[1] - nowCalendarBar.yearRange[0]
+                  ) {
+                    handleDateClick(
+                      `${nowCalendarBar.yearRange[0] - 1 + year}`,
+                      "year"
+                    );
+                  }
+                }}
+              >
+                {nowCalendarBar.yearRange[0] - 1 + year}
+              </div>
+            ))}
           </div>
         )}
       </div>
+      {`${selectedDate.year} ${selectedDate.month} ${selectedDate.day}`}
     </div>
   );
 }
