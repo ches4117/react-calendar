@@ -12,12 +12,6 @@ export const showMapping = {
   showYearRange: "yearRange",
 };
 
-export const clickMapping = {
-  showDay: "day",
-  showMonth: "month",
-  showYearRange: "year",
-};
-
 export const clickChangeMapping = {
   showMonth: "showDay",
   showYearRange: "showMonth",

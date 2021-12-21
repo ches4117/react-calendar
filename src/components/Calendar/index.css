@@ -1,8 +1,17 @@
+.calendar-input {
+  margin-bottom: 8px ;
+}
+
 .calendar-card {  
   width: 316px;
   height: 366px;
   border: 1px solid;
 }
+
+.calendar-card-hide {
+  visibility: hidden;
+}
+
 
 .calendar-bar {  
   display: flex;  
@@ -65,7 +74,6 @@
   background-color: #db3d44;  
   color: #fff !important;
   border-radius: 50%;  
-  transition: 0.5s;  
 }
 
 
@@ -105,7 +113,6 @@
   color: #000;
   border-radius: 50%;
 }
-
 
 .empty-days {
   color: #eee;
