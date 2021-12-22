@@ -34,3 +34,4 @@ The project has **App** and **Calendar** component. We should pass some params f
 ## Features
 
 - Record user last select date
+- Test basic month days
