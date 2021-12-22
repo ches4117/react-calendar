@@ -2,67 +2,52 @@ import React, { useState, useEffect, useMemo } from "react";
 import "./index.css";
 import moment from "moment";
 import {
+  allMonthShort,
   monthShort,
   showDay,
   showMonth,
   showYearRange,
-  allMonthShort,
   showMapping,
   clickChangeMapping,
   totalDays,
+  formatDateString,
+  disabledDayOfMonth,
+  daysOfMonth,
 } from "./utils";
 
 function Calendar(props) {
   const {
-    dateObject,
-    todayObject,
+    dateObject = moment(),
+    todayObject = moment(),
     handleRangeChange,
     handleDateObjectChange,
   } = props;
 
   const [showCalendar, setShowCalendar] = useState(false);
   const [showState, setShowState] = useState(showDay);
+  const [todayYear, todayMonth, today] = todayObject
+    .format("YYYY MMM DD")
+    .split(" ");
+  const [dateYear, dateMonth, dateDay] = dateObject
+    .format("YYYY MMM DD")
+    .split(" ");
   const [selectedDate, setSelectDate] = useState({
-    day: dateObject.format("DD"),
-    month: dateObject.format("MMM"),
-    year: dateObject.format("YYYY"),
+    day: dateDay,
+    month: dateMonth,
+    year: dateYear,
   });
-  const selectedDateString = moment(
-    `${selectedDate.year}-${moment()
-      .month(selectedDate.month)
-      .format("M")}-${selectedDate.day}`
-  ).format("YYYY-MM-DD");
-
   const [nowCalendarBar, setNowCalendarBar] = useState({
     month: undefined,
     year: undefined,
     yearRange: undefined,
   });
-  const [todayYear, todayMonth, today] = todayObject
-    .format("YYYY MMM DD")
-    .split(" ");
 
   const daysInMonthArray = useMemo(() => {
-    return [...Array(moment(dateObject).daysInMonth()).keys()].map(
-      (i) => i + 1
-    );
+    return daysOfMonth(dateObject);
   }, [dateObject]);
 
-  const firstDayOfMonth = useMemo(() => {
-    const preMonthLastDay = Number(
-      moment(dateObject)
-        .subtract(1, "months")
-        .endOf("month")
-        .format("DD")
-    );
-
-    const firstDayNowMonth = moment(dateObject)
-      .startOf("month")
-      .format("d");
-
-    return [...Array(Number(firstDayNowMonth)).keys()]
-      .map((i) => preMonthLastDay - i)
-      .reverse();
+  const disabledDay = useMemo(() => {
+    return disabledDayOfMonth(dateObject);
   }, [dateObject]);
 
   useEffect(() => {
@@ -109,8 +94,10 @@ function Calendar(props) {
     } else {
       setSelectDate({ ...selectedDate, year: value });
     }
+
     setNowCalendarBar({ ...nowCalendarBar, [type]: value });
     handleDateObjectChange(dateObject.set(type, value));
+
     if (clickChangeMapping[showState]) {
       setShowState(clickChangeMapping[showState]);
     }
@@ -120,7 +107,7 @@ function Calendar(props) {
     <>
       <input
         className="calendar-input"
-        value={selectedDateString}
+        value={formatDateString(selectedDate)}
         onClick={() => handleShowCalendar(true)}
         readOnly
       />
@@ -175,7 +162,7 @@ function Calendar(props) {
                 })}
               </div>
               <div className="calendar-days">
-                {firstDayOfMonth.map((day) => {
+                {disabledDay.map((day) => {
                   return (
                     <div key={`empty-${day}`} className="days-name empty-days">
                       {day}
@@ -207,7 +194,7 @@ function Calendar(props) {
                 })}
                 {[
                   ...Array(
-                    totalDays - firstDayOfMonth.length - daysInMonthArray.length
+                    totalDays - disabledDay.length - daysInMonthArray.length
                   ).keys(),
                 ].map((day) => {
                   return (
