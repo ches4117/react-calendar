@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import PropTypes from "prop-types";
 import "./index.css";
 import moment from "moment";
 import {
@@ -14,6 +15,20 @@ import {
   disabledDayOfMonth,
   daysOfMonth,
 } from "./utils";
+
+Calendar.propTypes = {
+  dateObject: PropTypes.object,
+  todayObject: PropTypes.object,
+  handleRangeChange: PropTypes.func,
+  handleDateObjectChange: PropTypes.func,
+};
+
+Calendar.defaultProps = {
+  dateObject: moment(),
+  todayObject: moment(),
+  handleRangeChange: () => {},
+  handleDateObjectChange: () => {},
+};
 
 function Calendar(props) {
   const {
